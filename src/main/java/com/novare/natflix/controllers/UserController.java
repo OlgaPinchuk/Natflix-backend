@@ -31,7 +31,7 @@ public class UserController {
 
         String enteredPasswordHash = PasswordHasher.hashPassword(loginRequest.password());
         if(enteredPasswordHash.equals(existingUser.getPassword())) {
-           return ResponseEntity.ok(createResponse(existingUser.getId()));
+           return ResponseEntity.ok(existingUser);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
         }
@@ -50,16 +50,12 @@ public class UserController {
 
         if(existingUser == null) {
             String hashedPassword = PasswordHasher.hashPassword(userInput.password());
-            User newUser = new User(userInput.fullName(), userInput.email(), hashedPassword);
+            User newUser = new User(userInput.name(), userInput.email(), hashedPassword);
             User createdUser = userService.create(newUser);
 
-            return ResponseEntity.ok(createResponse(createdUser.getId()));
+            return ResponseEntity.ok(createdUser);
         } else {
            return ResponseEntity.badRequest().body("User with this email already exists.");
         }
-    }
-
-    private Map<String, Long> createResponse(long userId) {
-        return Map.of("userId", userId);
     }
 }

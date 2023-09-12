@@ -1,5 +1,6 @@
 package com.novare.natflix.models.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,29 +12,31 @@ public class User {
     @Column(name = "user_id", updatable = false, nullable = false)
     private long id;
     @Column(name = "fullName")
-    private String fullName;
+    private String name;
     @Column(name = "email", unique = true, nullable = false)
     private String email;
-    @Column(name = "password",  nullable = false)
+    @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
 
-    private UserRole role;
+    @Column(name = "type", nullable = false)
+    private UserType type;
 
     public User() {}
 
-    public User(String fullName, String email, String password) {
-        this.fullName = fullName;
+    public User(String name, String email, String password) {
+        this.name = name;
         this.email = email;
         this.password = password;
-        this.role = UserRole.CUSTOMER;
+        this.type = UserType.CUSTOMER;
     }
 
 
-    public User(String fullName, String email, String password, UserRole role) {
-        this.fullName = fullName;
+    public User(String name, String email, String password, UserType type) {
+        this.name = name;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.type = type;
     }
 
     public long getId() {
@@ -44,12 +47,12 @@ public class User {
         this.id = id;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -68,11 +71,11 @@ public class User {
         this.password = password;
     }
 
-    public UserRole getRole() {
-        return role;
+    public int getType() {
+        return type.getTypeValue();
     }
 
-    public void setRole(UserRole role) {
-        this.role = role;
+    public void setType(UserType type) {
+        this.type = type;
     }
 }

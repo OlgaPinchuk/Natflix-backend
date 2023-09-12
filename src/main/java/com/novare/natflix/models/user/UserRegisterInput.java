@@ -1,3 +1,3 @@
 package com.novare.natflix.models.user;
 
-public record UserRegisterInput(String fullName, String email, String password) {}
+public record UserRegisterInput(String name, String email, String password) {}

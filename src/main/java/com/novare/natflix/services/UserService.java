@@ -2,7 +2,6 @@ package com.novare.natflix.services;
 
 import com.novare.natflix.dao.user.IUserDao;
 import com.novare.natflix.models.user.User;
-import org.apache.tomcat.util.buf.UEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
