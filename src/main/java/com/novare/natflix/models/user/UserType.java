@@ -14,4 +14,13 @@ public enum UserType {
         return typeValue;
     }
 
+    public static UserType fromTypeValue(int type) {
+        for(UserType userType : UserType.values()) {
+            if(userType.getTypeValue() == type) {
+                return userType;
+            }
+        }
+        return  null;
+    }
+
 }
