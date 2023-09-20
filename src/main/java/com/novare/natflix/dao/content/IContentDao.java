@@ -8,18 +8,21 @@ import com.novare.natflix.payloads.ContentDto;
 import java.util.List;
 
 public interface IContentDao {
-    List<Content> getAll();
 
     Content get(long id);
 
     Content create(Content newContent);
 
     Content update(long id, ContentDto payload);
+    Content update(Content content);
 
     void delete(Content content);
 
     List<Content> getContentByType(ContentType type);
+    ContentType findContentTypeById(long id);
 
     Genre findGenreByName(String name);
+
+    Genre findGenreById(long id);
     ContentType findContentTypeByName(String name);
 }

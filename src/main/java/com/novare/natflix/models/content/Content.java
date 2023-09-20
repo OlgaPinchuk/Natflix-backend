@@ -18,7 +18,7 @@ public class Content {
     @Column
     private String summary;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
 
@@ -99,13 +99,19 @@ public class Content {
         this.thumbUrl = thumbUrl;
     }
 
-
     public void setCommonProperties(ContentDto contentDto, Genre genre) {
         setTitle(contentDto.getTitle());
         setSummary(contentDto.getSummary());
         setThumbUrl(contentDto.getThumbUrl());
         setBannerUrl(contentDto.getBannerUrl());
         setGenre(genre);
+    }
+
+    public void setCommonProperties(ContentDto contentDto) {
+        setTitle(contentDto.getTitle());
+        setSummary(contentDto.getSummary());
+        setThumbUrl(contentDto.getThumbUrl());
+        setBannerUrl(contentDto.getBannerUrl());
     }
 
 }

@@ -9,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 @RestController
 public class UserController {
@@ -39,18 +37,23 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterInput userInput) throws NoSuchAlgorithmException {
-        String email = userInput.email();
-        String password = userInput.password();
+        String email = userInput.getEmail();
+        String password = userInput.getPassword();
 
         if(email == null  || email.isEmpty() || password == null || password.isEmpty()) {
             return ResponseEntity.badRequest().body("Email and password are required.");
         }
 
-        User existingUser = userService.findByEmail(userInput.email());
+        User existingUser = userService.findByEmail(email);
 
         if(existingUser == null) {
-            String hashedPassword = PasswordHasher.hashPassword(userInput.password());
-            User newUser = new User(userInput.name(), userInput.email(), hashedPassword);
+            String hashedPassword = PasswordHasher.hashPassword(password);
+            UserType userType = UserType.fromTypeValue(userInput.getType());
+            User newUser = new User(userInput.getName(), email, hashedPassword);
+
+            if(userType != null) {
+                newUser.setType(UserType.ADMIN);
+            }
             User createdUser = userService.create(newUser);
 
             return ResponseEntity.ok(createdUser);

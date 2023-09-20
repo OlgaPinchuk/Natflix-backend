@@ -17,9 +17,6 @@ public class ContentService {
     @Autowired
     IContentDao iContentDao;
 
-    public List<Content> getAll() {
-        return iContentDao.getAll();
-    }
 
     public Content get(long id) {
         return iContentDao.get(id);
@@ -44,15 +41,31 @@ public class ContentService {
     public List<Content> getContentsByType(String type) {
         ContentType contentType = iContentDao.findContentTypeByName(type);
 
-        if (type != null) {
+        if (contentType != null) {
             return iContentDao.getContentByType(contentType);
         } else {
 //          throw new NotFoundException("Content type not found: " + contentType);
             return null;
         }
     }
+
+    public List<Content> getContentsByTypeId(long typeId) {
+        ContentType contentType = iContentDao.findContentTypeById(typeId);
+
+        if (contentType != null) {
+            return iContentDao.getContentByType(contentType);
+        } else {
+//          throw new NotFoundException("Content type not found: " + contentType);
+            return null;
+        }
+    }
+
     public Genre findGenreByName(String name) {
         return iContentDao.findGenreByName(name);
+    }
+
+    public Genre findGenreById(long id) {
+        return iContentDao.findGenreById(id);
     }
 
     public ContentType findContentTypeByName(String name) {

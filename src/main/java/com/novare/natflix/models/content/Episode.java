@@ -15,17 +15,14 @@ public class Episode extends Content{
 
     private int seasonNumber;
 
-    @Column(unique = true)
     private int episodeNumber;
 
     @Column(name="content_id")
     private long contentId;
 
-    private Genre genre;
-
     private String videoCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="series_id", nullable = false)
     private Series series;
 

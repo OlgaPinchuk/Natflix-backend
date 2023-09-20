@@ -3,18 +3,14 @@ package com.novare.natflix.controllers;
 import com.novare.natflix.exceptions.ResourceNotFoundException;
 import com.novare.natflix.models.content.*;
 import com.novare.natflix.payloads.*;
-import com.novare.natflix.services.ContentService;
-import com.novare.natflix.utils.StringUtil;
+import com.novare.natflix.services.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/media")
@@ -22,37 +18,62 @@ public class ContentController {
     @Autowired
     ContentService contentService;
 
+    @Autowired
+    private MovieService movieService;
+
+    @Autowired
+    private DocumentaryService documentaryService;
+
+    @Autowired
+    private SeriesService seriesService;
+
+    @Autowired
+    private EpisodeService episodeService;
+
     @GetMapping(params = "id")
-    public Content getContentById(@RequestParam("id") long id) {
+    public ResponseEntity<?> getContentById(@RequestParam("id") long id) {
+
         Content contentItem = contentService.get(id);
 
-        if(contentItem == null) {
+        if (contentItem == null) {
             throw new ResourceNotFoundException("Content", "id", String.valueOf(id));
         }
+        Object responseDto = convertContentToResponseDto(contentItem);
 
-        return contentItem;
-    }
-
-    @GetMapping("/{contentType}")
-    public List<Content> getContentByType(@PathVariable String contentType) {
-
-        List<Content> contentList = contentService.getContentsByType(StringUtil.capitalizeFirstLetter(contentType));
-
-        if (contentList == null || contentList.isEmpty()) {
-            throw new ResourceNotFoundException("Content", "contentType", contentType);
+        if (responseDto != null) {
+            return ResponseEntity.ok(responseDto);
+        } else {
+            throw new ResourceNotFoundException("Content type not supported");
         }
-
-        return contentList;
     }
 
-    @GetMapping("/series/{seriesId}/episodes")
-    public Set<Episode> getEpisodes(@PathVariable("seriesId") long seriesId) {
-        return contentService.findEpisodesBySeriesId(seriesId);
+    @GetMapping("/movies")
+    public ResponseEntity<List<MovieDto>> getMovies() {
+        List<MovieDto> movies = movieService.getMovies();
+        return ResponseEntity.ok(movies);
     }
 
-    @PostMapping("/series/create")
+    @GetMapping("/tv-series")
+    public ResponseEntity<List<ContentDto>> getSeries() {
+        List<ContentDto> seriesDto = seriesService.getSeries();
+        return ResponseEntity.ok(seriesDto);
+    }
+
+    @GetMapping("/documentaries")
+    public ResponseEntity<List<DocumentaryDto>> getDocumentaries() {
+       List<DocumentaryDto> documentaries = documentaryService.getDocumentaries();
+       return ResponseEntity.ok(documentaries);
+    }
+
+    @GetMapping("/tv-series/{seriesId}")
+    public ResponseEntity<List<EpisodeDto>> getEpisodes(@PathVariable("seriesId") long seriesId) {
+        List<EpisodeDto> episodes = episodeService.getEpisodes(seriesId);
+        return ResponseEntity.ok(episodes);
+    }
+
+    @PostMapping("/tv-series/create")
     public ResponseEntity<?> createSeries(@RequestBody ContentDto contentDto) {
-        Genre genre = contentService.findGenreByName(contentDto.getGenre());
+        Genre genre = contentService.findGenreById(contentDto.getGenreId());
 
         if (contentDto.getTitle() == null || genre == null) {
             return ResponseEntity.badRequest().body("Required fields are missing");
@@ -62,15 +83,15 @@ public class ContentController {
         newSeries.setCommonProperties(contentDto, genre);
         newSeries.setContentType(contentService.findContentTypeByName("Series"));
 
-        Content createdContent = contentService.create(newSeries);
+        contentService.create(newSeries);
 
-        return new ResponseEntity<>(createdContent, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
 
     @PostMapping("/movies/create")
     public ResponseEntity<?> createMovies(@RequestBody MovieDto movieDto) {
-        Genre genre = contentService.findGenreByName(movieDto.getGenre());
+        Genre genre = contentService.findGenreById(movieDto.getGenreId());
 
         if (movieDto.getTitle() == null || genre == null) {
             return ResponseEntity.badRequest().body("Required fields are missing");
@@ -81,15 +102,15 @@ public class ContentController {
         newMovie.setContentType(contentService.findContentTypeByName("Movies"));
         newMovie.setDirector(movieDto.getDirector());
         newMovie.setVideoCode(movieDto.getVideoCode());
+        newMovie.setRating(movieDto.getRating());
+        contentService.create(newMovie);
 
-        Content createdContent = contentService.create(newMovie);
-
-        return new ResponseEntity<>(createdContent, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping("/documentaries/create")
-    public ResponseEntity<?> createDocumentary(@RequestBody DocumentaryDTO docDto) {
-        Genre genre = contentService.findGenreByName(docDto.getGenre());
+    public ResponseEntity<?> createDocumentary(@RequestBody DocumentaryDto docDto) {
+        Genre genre = contentService.findGenreById(docDto.getGenreId());
 
         if (docDto.getTitle() == null || genre == null) {
             return ResponseEntity.badRequest().body("Required fields are missing");
@@ -101,12 +122,12 @@ public class ContentController {
         newDoc.setNarrator(docDto.getNarrator());
         newDoc.setVideoCode(docDto.getVideoCode());
 
-        Content createdContent = contentService.create(newDoc);
+        contentService.create(newDoc);
 
-        return new ResponseEntity<>(createdContent, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping("/series/{seriesId}/episodes")
+    @PostMapping("/tv-series/{seriesId}/create")
     public ResponseEntity<?> createEpisode(
             @PathVariable("seriesId") long seriesId,
             @RequestBody EpisodeDto episodeDto) {
@@ -126,22 +147,57 @@ public class ContentController {
 
         series.addEpisode(newEpisode);
 
-        Content createdEpisode = contentService.create(newEpisode);
-        Map<String, Long> response = new HashMap<>();
-        response.put("id", createdEpisode.getId());
+        contentService.create(newEpisode);
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-        public ResponseEntity<String> updateContent(@RequestBody ContentDto payload, @PathVariable(name="id") long id) {
-            contentService.update(id, payload);
+    @PutMapping("/movies/{id}/update")
+        public ResponseEntity<String> updateMovie(@RequestBody MovieDto payload, @PathVariable(name="id") long id) {
+            movieService.update(id, payload);
             return ResponseEntity.ok("Success");
         }
-    @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteContent(@PathVariable(name="id") long id) {
-            contentService.delete(id);
-            return ResponseEntity.ok("Deleted");
+
+    @PutMapping("/documentaries/{id}/update")
+    public ResponseEntity<String> updateDocumentary(@RequestBody DocumentaryDto payload, @PathVariable(name="id") long id) {
+        documentaryService.update(id, payload);
+        return ResponseEntity.ok("Success");
+    }
+
+    @PutMapping("/tv-series/{id}/update")
+    public ResponseEntity<String> updateSeries(@RequestBody ContentDto payload, @PathVariable(name="id") long id) {
+        seriesService.update(id, payload);
+        return ResponseEntity.ok("Success");
+    }
+
+    @PutMapping("/tv-series/{seriesId}/{id}/update")
+    public ResponseEntity<String> Episode(@RequestBody EpisodeDto payload, @PathVariable(name="seriesId") long seriesId, @PathVariable(name="id") long id) {
+        episodeService.update(id, payload);
+        return ResponseEntity.ok("Success");
+    }
+
+    @DeleteMapping("/{contentType}/delete/{id}")
+    public ResponseEntity<String> deleteContent(@PathVariable(name="contentType") String contentType, @PathVariable(name="id") long id) {
+        contentService.delete(id);
+        return ResponseEntity.ok("Deleted");
+    }
+
+    @DeleteMapping("/{contentType}/{seriesId}/delete/{episodeId}")
+    public ResponseEntity<String> deleteEpisode(@PathVariable(name="contentType") String contentType, @PathVariable(name="episodeId") long id) {
+        contentService.delete(id);
+        return ResponseEntity.ok("Deleted");
+    }
+
+    private Object convertContentToResponseDto(Content content) {
+        if (content instanceof Movie) {
+            return movieService.convertToDto((Movie) content);
+        } else if (content instanceof Series) {
+            return seriesService.convertToDto((Series) content);
+        } else if (content instanceof Documentary) {
+            return documentaryService.convertToDto((Documentary) content);
+        } else {
+            return null;
         }
+    }
 
 }

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "movies")
 public class Movie extends Content {
     private String director;
-
+    private int rating;
     private String videoCode;
     public Movie() {}
 
@@ -24,5 +24,12 @@ public class Movie extends Content {
 
     public void setVideoCode(String videoCode) {
         this.videoCode = videoCode;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 }

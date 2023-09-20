@@ -21,13 +21,6 @@ public class ContentDao implements IContentDao {
     private EntityManager entityManager;
 
     @Override
-    public List<Content> getAll() {
-        String sql = "FROM Content as c";
-        List<Content> contentList = (List<Content>) entityManager.createQuery(sql).getResultList();
-        return contentList;
-    }
-
-    @Override
     public Content get(long id) {
         return entityManager.find(Content.class, id);
     }
@@ -61,14 +54,19 @@ public class ContentDao implements IContentDao {
 
         currentContent.setTitle(payload.getTitle());
         currentContent.setSummary(payload.getSummary());
-        currentContent.setGenre(findGenreByName(payload.getGenre()));
-        currentContent.setContentType(findContentTypeByName(payload.getContentType()));
+        currentContent.setGenre(findGenreById(payload.getGenreId()));
+        currentContent.setContentType(findContentTypeById(payload.getContentTypeId()));
         currentContent.setThumbUrl(payload.getThumbUrl());
         currentContent.setBannerUrl(payload.getBannerUrl());
 
 
         entityManager.merge(currentContent);
         return currentContent;
+    }
+    @Override
+    public Content update(Content content) {
+        entityManager.merge(content);
+        return content;
     }
 
     @Override
@@ -90,11 +88,36 @@ public class ContentDao implements IContentDao {
     }
 
     @Override
+    public ContentType findContentTypeById(long id) {
+        String sql = "SELECT ct FROM ContentType ct WHERE ct.id = :id";
+
+        try {
+            return entityManager.createQuery(sql, ContentType.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
     public Genre findGenreByName(String name) {
         String sql = "SELECT g FROM Genre g WHERE g.name = :name";
         try {
             return entityManager.createQuery(sql, Genre.class)
                     .setParameter("name", name)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Genre findGenreById(long id) {
+        String sql = "SELECT g FROM Genre g WHERE g.id = :id";
+        try {
+            return entityManager.createQuery(sql, Genre.class)
+                    .setParameter("id", id)
                     .getSingleResult();
         } catch (NoResultException e) {
             return null;
