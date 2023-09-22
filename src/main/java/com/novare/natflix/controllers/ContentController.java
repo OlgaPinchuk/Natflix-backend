@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -29,6 +30,9 @@ public class ContentController {
 
     @Autowired
     private EpisodeService episodeService;
+
+    @Autowired
+    private ImageService imageService;
 
     @GetMapping(params = "id")
     public ResponseEntity<?> getContentById(@RequestParam("id") long id) {
@@ -72,7 +76,7 @@ public class ContentController {
     }
 
     @PostMapping("/tv-series/create")
-    public ResponseEntity<?> createSeries(@RequestBody ContentDto contentDto) {
+    public ResponseEntity<?> createSeries(@RequestBody ContentDto contentDto) throws IOException {
         Genre genre = contentService.findGenreById(contentDto.getGenreId());
 
         if (contentDto.getTitle() == null || genre == null) {
@@ -82,6 +86,8 @@ public class ContentController {
         Series newSeries = new Series();
         newSeries.setCommonProperties(contentDto, genre);
         newSeries.setContentType(contentService.findContentTypeByName("Series"));
+        newSeries.setBannerUrl(imageService.getImageUrl(contentDto.getBannerUrl()));
+
 
         contentService.create(newSeries);
 

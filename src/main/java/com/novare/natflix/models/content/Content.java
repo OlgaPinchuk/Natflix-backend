@@ -110,8 +110,9 @@ public class Content {
     public void setCommonProperties(ContentDto contentDto) {
         setTitle(contentDto.getTitle());
         setSummary(contentDto.getSummary());
-        setThumbUrl(contentDto.getThumbUrl());
-        setBannerUrl(contentDto.getBannerUrl());
+        System.out.println("url" + contentDto.getThumbUrl());
+        setThumbUrl("/downloadFile/" + contentDto.getThumbUrl());
+        setBannerUrl("/downloadFile/" + contentDto.getBannerUrl());
     }
 
 }

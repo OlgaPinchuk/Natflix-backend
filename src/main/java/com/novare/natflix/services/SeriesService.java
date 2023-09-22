@@ -3,10 +3,9 @@ package com.novare.natflix.services;
 import com.novare.natflix.dao.content.IContentDao;
 import com.novare.natflix.exceptions.ResourceNotFoundException;
 import com.novare.natflix.models.content.Content;
-import com.novare.natflix.models.content.Movie;
 import com.novare.natflix.models.content.Series;
 import com.novare.natflix.payloads.ContentDto;
-import com.novare.natflix.payloads.MovieDto;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,7 @@ public class SeriesService {
     public Content update(long id, ContentDto payload) {
         Series current = (Series) iContentDao.get(id);
         if(current == null) {
-            throw new ResourceNotFoundException("Movie", "id", String.valueOf(id));
+            throw new ResourceNotFoundException("Serie", "id", String.valueOf(id));
         }
         current.setCommonProperties(payload, iContentDao.findGenreById(payload.getGenreId()));
 

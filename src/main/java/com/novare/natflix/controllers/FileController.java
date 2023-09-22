@@ -1,16 +1,16 @@
 package com.novare.natflix.controllers;
 
 import java.io.IOException;
+import java.util.Base64;
+import java.util.UUID;
 
 import com.novare.natflix.utils.FileDownload;
-import com.novare.natflix.utils.FileUpload;
 import com.novare.natflix.utils.FileUploadResponse;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController("/api/files")
 public class FileController {
@@ -42,17 +42,18 @@ public class FileController {
 
     @PostMapping("/upload")
     public ResponseEntity<FileUploadResponse> uploadFile(
-            @RequestParam("file") MultipartFile multipartFile)
+            @RequestParam("file") String base64File)
             throws IOException {
 
-        String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-        long size = multipartFile.getSize();
+        byte[] decodedBytes = Base64.getDecoder().decode(base64File.split(",")[1]);
+        String fileName = UUID.randomUUID().toString();
+        String fileCode = RandomStringUtils.randomAlphanumeric(8);
 
-        String fileCode = FileUpload.saveFile(fileName, multipartFile);
+     //   FileUpload.saveFile(fileName, base64File);
 
         FileUploadResponse response = new FileUploadResponse();
         response.setFileName(fileName);
-        response.setSize(size);
+        response.setSize(decodedBytes.length);
         response.setDownloadUri("/downloadFile/" + fileCode);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
