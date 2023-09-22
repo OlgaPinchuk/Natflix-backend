@@ -3,9 +3,7 @@ package com.novare.natflix.services;
 import com.novare.natflix.dao.content.IContentDao;
 import com.novare.natflix.exceptions.ResourceNotFoundException;
 import com.novare.natflix.models.content.*;
-import com.novare.natflix.payloads.ContentDto;
 import com.novare.natflix.payloads.EpisodeDto;
-import com.novare.natflix.payloads.MovieDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

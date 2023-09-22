@@ -52,12 +52,8 @@ public class ContentDao implements IContentDao {
             throw new ResourceNotFoundException("Content", "id", String.valueOf(id));
         }
 
-        currentContent.setTitle(payload.getTitle());
-        currentContent.setSummary(payload.getSummary());
-        currentContent.setGenre(findGenreById(payload.getGenreId()));
+        currentContent.setCommonProperties(payload, findGenreById(payload.getGenre_id()));
         currentContent.setContentType(findContentTypeById(payload.getContentTypeId()));
-        currentContent.setThumbUrl(payload.getThumbUrl());
-        currentContent.setBannerUrl(payload.getBannerUrl());
 
 
         entityManager.merge(currentContent);

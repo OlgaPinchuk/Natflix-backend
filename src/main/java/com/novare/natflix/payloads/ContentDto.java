@@ -14,8 +14,7 @@ public class ContentDto {
     protected long id;
     protected String title;
     protected String summary;
-    @JsonProperty("genre_id")
-    protected long genreId;
+    protected long genre_id;
     @JsonProperty("media_type_id")
     protected long contentTypeId;
     @JsonProperty("banner_url")

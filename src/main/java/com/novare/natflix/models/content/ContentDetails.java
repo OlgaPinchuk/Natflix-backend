@@ -10,9 +10,6 @@ public class ContentDetails {
     @Column(updatable = false, nullable = false)
     private long id;
 
-//    @Column(name = "video_code")
-//    private String videoCode;
-
     @OneToOne
     @JoinColumn(name = "content_id")
     private Content content;
@@ -31,11 +28,4 @@ public class ContentDetails {
         this.id = id;
     }
 
-//    public String getVideoCode() {
-//        return videoCode;
-//    }
-//
-//    public void setVideoCode(String videoCode) {
-//        this.videoCode = videoCode;
-//    }
 }

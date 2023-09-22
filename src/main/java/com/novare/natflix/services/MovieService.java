@@ -34,7 +34,7 @@ public class MovieService {
         if(current == null) {
             throw new ResourceNotFoundException("Movie", "id", String.valueOf(id));
         }
-        current.setCommonProperties(payload, iContentDao.findGenreById(payload.getGenreId()));
+        current.setCommonProperties(payload, iContentDao.findGenreById(payload.getGenre_id()));
         current.setRating(payload.getRating());
         current.setDirector(payload.getDirector());
         current.setVideoCode(payload.getVideoCode());
@@ -50,7 +50,7 @@ public class MovieService {
         responseDto.setTitle(movie.getTitle());
         responseDto.setSummary(movie.getSummary());
         responseDto.setContentTypeId(movie.getContentType().getId());
-        responseDto.setGenreId(movie.getGenre().getId());
+        responseDto.setGenre_id(movie.getGenre().getId());
         responseDto.setBannerUrl(movie.getBannerUrl());
         responseDto.setThumbUrl(movie.getThumbUrl());
         responseDto.setRating(movie.getRating());

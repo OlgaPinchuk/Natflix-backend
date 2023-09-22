@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 public class SeriesService {
     @Autowired
     private ContentService contentService;
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     IContentDao iContentDao;
@@ -28,12 +30,18 @@ public class SeriesService {
                 .collect(Collectors.toList());
     }
 
-    public Content update(long id, ContentDto payload) {
+    public Content update(long id, ContentDto payload, String banner, String thumb) {
         Series current = (Series) iContentDao.get(id);
+
         if(current == null) {
             throw new ResourceNotFoundException("Serie", "id", String.valueOf(id));
         }
-        current.setCommonProperties(payload, iContentDao.findGenreById(payload.getGenreId()));
+
+        if(payload != null) {
+            current.setCommonProperties(payload, iContentDao.findGenreById(payload.getGenre_id()));
+        }
+        current.setThumbUrl("/files-upload/" + thumb + "picture.png");
+        current.setBannerUrl(banner);
 
         return iContentDao.update(current);
 
@@ -46,10 +54,11 @@ public class SeriesService {
         responseDto.setTitle(content.getTitle());
         responseDto.setSummary(content.getSummary());
         responseDto.setContentTypeId(content.getContentType().getId());
-        responseDto.setGenreId(content.getGenre().getId());
+        responseDto.setGenre_id(content.getGenre().getId());
         responseDto.setBannerUrl(content.getBannerUrl());
         responseDto.setThumbUrl(content.getThumbUrl());
 
         return responseDto;
     }
+
 }

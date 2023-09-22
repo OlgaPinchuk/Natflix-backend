@@ -4,7 +4,6 @@ import com.novare.natflix.dao.content.IContentDao;
 import com.novare.natflix.exceptions.ResourceNotFoundException;
 import com.novare.natflix.models.content.Content;
 import com.novare.natflix.models.content.Documentary;
-import com.novare.natflix.models.content.Movie;
 import com.novare.natflix.payloads.DocumentaryDto;
 
 import org.springframework.stereotype.Service;
@@ -35,7 +34,7 @@ public class DocumentaryService {
         if(current == null) {
             throw new ResourceNotFoundException("Documentary", "id", String.valueOf(id));
         }
-        current.setCommonProperties(payload, iContentDao.findGenreById(payload.getGenreId()));
+        current.setCommonProperties(payload, iContentDao.findGenreById(payload.getGenre_id()));
         current.setVideoCode(payload.getVideoCode());
         current.setNarrator(payload.getNarrator());
 
@@ -50,7 +49,7 @@ public class DocumentaryService {
         responseDto.setTitle(documentary.getTitle());
         responseDto.setSummary(documentary.getSummary());
         responseDto.setContentTypeId(documentary.getContentType().getId());
-        responseDto.setGenreId(documentary.getGenre().getId());
+        responseDto.setGenre_id(documentary.getGenre().getId());
         responseDto.setBannerUrl(documentary.getBannerUrl());
         responseDto.setThumbUrl(documentary.getThumbUrl());
         responseDto.setNarrator(documentary.getNarrator());

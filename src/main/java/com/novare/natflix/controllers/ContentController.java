@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -76,8 +77,11 @@ public class ContentController {
     }
 
     @PostMapping("/tv-series/create")
-    public ResponseEntity<?> createSeries(@RequestBody ContentDto contentDto) throws IOException {
-        Genre genre = contentService.findGenreById(contentDto.getGenreId());
+    public ResponseEntity<?> createSeries(ContentDto contentDto,
+                                          @RequestParam("banner_url") MultipartFile fileBanner,
+                                          @RequestParam("thumbnail_url") MultipartFile fileThumbnail) throws IOException {
+
+        Genre genre = contentService.findGenreById(contentDto.getGenre_id());
 
         if (contentDto.getTitle() == null || genre == null) {
             return ResponseEntity.badRequest().body("Required fields are missing");
@@ -86,18 +90,15 @@ public class ContentController {
         Series newSeries = new Series();
         newSeries.setCommonProperties(contentDto, genre);
         newSeries.setContentType(contentService.findContentTypeByName("Series"));
-        newSeries.setBannerUrl(imageService.getImageUrl(contentDto.getBannerUrl()));
-
 
         contentService.create(newSeries);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-
     @PostMapping("/movies/create")
     public ResponseEntity<?> createMovies(@RequestBody MovieDto movieDto) {
-        Genre genre = contentService.findGenreById(movieDto.getGenreId());
+        Genre genre = contentService.findGenreById(movieDto.getGenre_id());
 
         if (movieDto.getTitle() == null || genre == null) {
             return ResponseEntity.badRequest().body("Required fields are missing");
@@ -116,7 +117,7 @@ public class ContentController {
 
     @PostMapping("/documentaries/create")
     public ResponseEntity<?> createDocumentary(@RequestBody DocumentaryDto docDto) {
-        Genre genre = contentService.findGenreById(docDto.getGenreId());
+        Genre genre = contentService.findGenreById(docDto.getGenre_id());
 
         if (docDto.getTitle() == null || genre == null) {
             return ResponseEntity.badRequest().body("Required fields are missing");
@@ -171,8 +172,14 @@ public class ContentController {
     }
 
     @PutMapping("/tv-series/{id}/update")
-    public ResponseEntity<String> updateSeries(@RequestBody ContentDto payload, @PathVariable(name="id") long id) {
-        seriesService.update(id, payload);
+    public ResponseEntity<String> updateSeries(ContentDto contentDto,
+                                               @RequestParam(value = "banner_url", required=false) MultipartFile bannerFile,
+                                               @RequestParam(value = "thumbnail_url", required=false) MultipartFile thumbFile,
+    @PathVariable(name="id") long id) throws IOException {
+        String banner = imageService.saveFile(bannerFile.getOriginalFilename(), bannerFile);
+        String thumb = imageService.saveFile(thumbFile.getOriginalFilename(), thumbFile);
+
+        seriesService.update(id, contentDto, banner, thumb);
         return ResponseEntity.ok("Success");
     }
 

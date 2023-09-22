@@ -102,15 +102,14 @@ public class Content {
     public void setCommonProperties(ContentDto contentDto, Genre genre) {
         setTitle(contentDto.getTitle());
         setSummary(contentDto.getSummary());
-        setThumbUrl(contentDto.getThumbUrl());
-        setBannerUrl(contentDto.getBannerUrl());
+        setThumbUrl("/downloadFile/" + contentDto.getThumbUrl());
+        setBannerUrl("/downloadFile/" + contentDto.getBannerUrl());
         setGenre(genre);
     }
 
     public void setCommonProperties(ContentDto contentDto) {
         setTitle(contentDto.getTitle());
         setSummary(contentDto.getSummary());
-        System.out.println("url" + contentDto.getThumbUrl());
         setThumbUrl("/downloadFile/" + contentDto.getThumbUrl());
         setBannerUrl("/downloadFile/" + contentDto.getBannerUrl());
     }
